@@ -1,6 +1,6 @@
 .array-item {
     width: 2px;
-    background-color: black;
+    background-color: rgb(225, 192, 255);
     display: inline-block;
     margin: 0 1px;
     height: 100px;

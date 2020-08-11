@@ -1,14 +1,13 @@
 import React from "react"
 import "./SortingVisualizer.css"
-import {mergeSort} from "../SortingAlgorithms/MergeSort.js";
-import {mergeSortAnimation} from "../SortingAlgorithms/MergeSort.js"
+import * as mergeSort from "../SortingAlgorithms/MergeSort.js"
+import * as quickSort from "../SortingAlgorithms/QuickSort.js"
 
 // Constants
-const ARR_SIZE = 200
-const ANIMATION_DELAY = 5;
-const DEFAULT_COLOR = "black"
-const PRIMARY_COLOR = "pink";
-const SECONDARY_COLOR = "green";
+const ARR_SIZE = 310
+const ANIMATION_DELAY = 1;
+const PRIMARY_COLOR = "rgb(225, 192, 255)";
+const SECONDARY_COLOR = "blue";
 
 export default class SortingVisualizer extends React.Component{
 
@@ -33,11 +32,13 @@ export default class SortingVisualizer extends React.Component{
         }
 
         this.setState({array: arr});
+        
     }
 
     // Button handlers that show animations
     mergeSortButton() {
-        const animations = mergeSortAnimation(this.state.array);
+        const animations = mergeSort.mergeSortAnimation(this.state.array);
+        console.log(animations);
         // Get the array items
         const arrayItems = document.getElementsByClassName('array-item');
         for (let i = 0; i < animations.length; i++) {
@@ -66,6 +67,42 @@ export default class SortingVisualizer extends React.Component{
     }
 
     quickSortButton() {
+        const animations = quickSort.quickSortAnimation(this.state.array);
+        console.log(animations);
+        // Get the array items
+        const arrayItems = document.getElementsByClassName('array-item');
+        let changeColor = true;
+        for (let i = 0; i < animations.length; i++) {
+            // There is a flag in the format of [false, false] to indicate a swap
+            if (animations[i] === "FLAG") {
+                changeColor = false;
+                i++;
+            }
+
+            if (changeColor) {
+                // Get the items that we are comparing
+                const [x, y, z] = animations[i];
+                const color = z ?  SECONDARY_COLOR : PRIMARY_COLOR;
+                
+                setTimeout(() => {
+                // Change the color of item x and item y
+                arrayItems[x].style.backgroundColor = color;
+                arrayItems[y].style.backgroundColor = color;
+
+                    
+                }, i * ANIMATION_DELAY);
+            } else {
+                // Reposition the items
+                const [idxA, heightA] = animations[i++];
+                const [idxB, heightB] = animations[i];
+
+                setTimeout(() => {
+                    arrayItems[idxA].style.height = `${heightA}px`;
+                    arrayItems[idxB].style.height = `${heightB}px`;
+                }, i * ANIMATION_DELAY);
+                changeColor = true;
+            }
+        }
 
     }
 
@@ -77,6 +114,8 @@ export default class SortingVisualizer extends React.Component{
 
     }
 
+    // Function to test whether the customized algo yields the same result as the built in one
+    // Param: a function
     testSortingAlgorithm(algo) {
         const official = this.state.array.slice().sort((a, b) => a - b);
         const mine = algo(this.state.array);
@@ -109,7 +148,8 @@ export default class SortingVisualizer extends React.Component{
                     <div
                         className="array-item"
                         key={id}
-                        style = {{height: `${value}px`}}>
+                        style = {{height: `${value}px`,
+                                  color: "pink"}}>
                     </div>
                     ))}
                 </div>
@@ -122,7 +162,7 @@ export default class SortingVisualizer extends React.Component{
                     <button onClick = {() => this.quickSortButton()}>Quick Sort</button>
                     <button onClick = {() => this.bubbleSortButton()}>Bubble Sort</button>
                     <button onClick = {() => this.heapSortButton()}>Heap Sort</button>
-                    <button onClick = {() => this.testSortingAlgorithm(mergeSort)}>Test Merge Sort</button>
+                    <button onClick = {() => this.testSortingAlgorithm(quickSort.quickSort)}>Test Quick Sort</button>
                 </div>
 
             </div>
